@@ -1,33 +1,188 @@
-# Week 4 — VPC Design, Transit Gateway & PrivateLink
+# Week 4 - AWS Transit Gateway and Multi-VPC Connectivity using Terraform
 
-## What this demonstrates
-Two different VPC-to-VPC connectivity models built side by side:
-- **Transit Gateway** between App VPC and Data VPC: full network-level
-  routing, used when services in different VPCs need broad reachability.
-- **PrivateLink** between App VPC and Shared VPC: a single service exposed
-  through an NLB and an interface endpoint, with no network-level routing
-  at all — App VPC never gains visibility into Shared VPC's CIDR.
+## Project Overview
+
+This project demonstrates how to build a secure multi-VPC architecture on AWS using Terraform. The infrastructure consists of an App VPC and a Data VPC connected through an AWS Transit Gateway. A Bastion Host is used to securely access private EC2 instances.
+
+The project validates private communication between VPCs without using public IP addresses.
+
+---
 
 ## Architecture
-screenshots/Screenshot 2026-06-25 165503.jpg
-screenshots/Screenshot 2026-06-25 165611.jpg
-screenshots/Screenshot 2026-06-25 165713.jpg
 
-## How to deploy
-\`\`\`bash
-cd terraform
-terraform init
-terraform apply -var="my_ip=YOUR_IP/32"
-\`\`\`
+```
+                    Internet
+                        |
+                 Bastion Host (Public Subnet)
+                        |
+                        SSH
+                        |
+                 App Server (Private Subnet)
+                        |
+             AWS Transit Gateway (TGW)
+                        |
+                 Data Server (Private Subnet)
+```
 
-## How to test
-[Insert the two curl tests from the lab]
+---
 
-## How to destroy
-\`\`\`bash
-terraform destroy -var="my_ip=YOUR_IP/32"
-\`\`\`
+## Technologies Used
 
-## Cost
-Approx. $0.10–0.15/hr while running (2 TGW attachments, 1 NLB, 1 interface
-endpoint, 3x t3.micro). Always destroy after use.
+- AWS EC2
+- AWS VPC
+- AWS Transit Gateway
+- AWS Security Groups
+- AWS Route Tables
+- Terraform
+- Amazon Linux 2023
+- SSH
+- Python HTTP Server
+
+---
+
+## Infrastructure Created
+
+### App VPC
+
+- CIDR: `10.0.0.0/16`
+- Public Subnet
+- Private Subnet
+- Internet Gateway
+- Route Tables
+
+### Data VPC
+
+- CIDR: `10.2.0.0/16`
+- Private Subnet
+- Route Table
+
+### Transit Gateway
+
+- Connected App VPC
+- Connected Data VPC
+- Configured routing between both VPCs
+
+### EC2 Instances
+
+- Bastion Host (Public)
+- App Server (Private)
+- Data Server (Private)
+
+---
+
+## Security
+
+### Bastion Security Group
+
+- SSH (22) allowed only from my public IP
+
+### App Server Security Group
+
+- SSH allowed only from Bastion Security Group
+- HTTP allowed within App VPC
+
+### Data Server Security Group
+
+- SSH allowed from App VPC
+- HTTP allowed from App VPC
+
+---
+
+## Validation
+
+Successfully verified:
+
+- SSH from Local Machine → Bastion
+- SSH from Bastion → App Server
+- HTTP communication from App Server → Data Server through Transit Gateway
+
+Command executed:
+
+```bash
+curl http://<DATA_SERVER_PRIVATE_IP>
+```
+
+Output:
+
+```text
+Hello from data server
+```
+
+This confirms successful private connectivity between both VPCs through AWS Transit Gateway.
+
+---
+
+## Project Structure
+
+```
+terraform/
+│
+├── main.tf
+├── vpc.tf
+├── tgw.tf
+├── compute.tf
+├── outputs.tf
+├── terraform.tfvars (not committed)
+└── .gitignore
+```
+
+---
+
+## Screenshots
+
+### Transit Gateway Attachments
+
+(Add Screenshot)
+
+---
+
+### EC2 Instances
+
+(Add Screenshot)
+
+---
+
+### Connectivity Validation
+
+(Add Screenshot showing)
+
+```bash
+curl http://10.2.1.xx
+
+Hello from data server
+```
+
+---
+
+## Learning Outcomes
+
+- Infrastructure as Code using Terraform
+- Designing Multi-VPC Architecture
+- AWS Transit Gateway Configuration
+- Route Table Configuration
+- Secure Bastion Host Architecture
+- Security Group Design
+- Private EC2 Communication
+- SSH Troubleshooting
+- Terraform State Management
+
+---
+
+## Cleanup
+
+Destroy infrastructure after testing to avoid AWS charges.
+
+```bash
+terraform destroy
+```
+
+---
+
+## Author
+
+**Dinesh Patil**
+
+DevOps Engineer
+
+GitHub:
+https://github.com/dinshpatil5615
