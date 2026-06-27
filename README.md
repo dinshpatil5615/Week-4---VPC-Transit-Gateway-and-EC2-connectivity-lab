@@ -132,19 +132,19 @@ terraform/
 
 ### Transit Gateway Attachments
 
-(Add Screenshot)
+![Transit Gateway Attachments](screenshots/TGW_Attachment.png)
 
 ---
 
 ### EC2 Instances
 
-(Add Screenshot)
+![EC2 Instances](screenshots/EC2_Instances.png)
 
 ---
 
 ### Connectivity Validation
 
-(Add Screenshot showing)
+![Connectivity Test](screenshots/connectivity_test.png)
 
 ```bash
 curl http://10.2.1.xx
